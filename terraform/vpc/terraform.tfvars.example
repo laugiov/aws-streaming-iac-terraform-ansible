@@ -1,0 +1,8 @@
+# Example configuration - Copy this file to terraform.tfvars and modify values
+# These values are normally generated automatically by run-all.sh
+
+lab_id       = "my-lab-id"         # Unique lab identifier
+region       = "us-east-1"         # AWS Region
+vpc_cidr     = "192.168.0.0/16"    # VPC CIDR
+public_cidr  = "192.168.1.0/24"    # Public subnet CIDR
+private_cidr = "192.168.2.0/24"    # Private subnet CIDR

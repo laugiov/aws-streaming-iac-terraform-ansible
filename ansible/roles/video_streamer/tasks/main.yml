@@ -1,0 +1,88 @@
+---
+#############################################################################
+# 0) Préparation : répertoire vidéo
+#############################################################################
+- name: Créer le répertoire des vidéos
+  file:
+    path: "{{ video_source | dirname }}"
+    state: directory
+    mode: "0755"
+
+#############################################################################
+# 1) FFmpeg statique – download local puis copie vers la VM
+#############################################################################
+
+- name: Télécharger l’archive FFmpeg (localhost)
+  delegate_to: localhost
+  become: false
+  get_url:
+    url: "{{ ffmpeg_url | default('https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz') }}"
+    dest: "/tmp/ffmpeg-static.tar.xz"
+    mode: "0644"
+    force: yes                      # toujours la dernière version
+  register: ffmpeg_pkg
+
+- name: (Re)créer le répertoire d’extraction (localhost)
+  delegate_to: localhost
+  become: false
+  file:
+    path: "/tmp/ffmpeg-static"
+    state: directory
+    mode: "0755"
+
+- name: Extraire ffmpeg en local (localhost)
+  delegate_to: localhost
+  become: false
+  when: ffmpeg_pkg.changed          # seulement si nouvelle archive
+  unarchive:
+    src: "/tmp/ffmpeg-static.tar.xz"
+    dest: "/tmp/ffmpeg-static"
+    remote_src: yes
+    extra_opts: [--strip-components=1]
+
+- name: Copier ffmpeg sur le Streamer
+  copy:
+    src: "/tmp/ffmpeg-static/ffmpeg"
+    dest: "/usr/local/bin/ffmpeg"
+    mode: "0755"
+    owner: root
+    group: root
+  notify: restart ffmpeg-streamer
+
+#############################################################################
+# 2) Vidéo de démo – download local puis copie
+#############################################################################
+
+- name: Télécharger Big Buck Bunny (localhost)
+  delegate_to: localhost
+  become: false
+  get_url:
+    url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+    dest: "/tmp/BigBuckBunny.mp4"
+    mode: "0644"
+  register: bbb_local
+
+- name: Copier la vidéo sur le Streamer
+  copy:
+    src:  "/tmp/BigBuckBunny.mp4"
+    dest: "{{ video_source }}"
+    mode: "0644"
+    force: yes            # écrase si le fichier existe déjà
+
+#############################################################################
+# 3) Service systemd FFmpeg ➜ RTMP
+#############################################################################
+
+- name: Déployer le service FFmpeg
+  template:
+    src: ffmpeg-streamer.service.j2
+    dest: /etc/systemd/system/ffmpeg-streamer.service
+    mode: "0644"
+  notify: restart ffmpeg-streamer
+
+- name: Activer & démarrer FFmpeg
+  systemd:
+    name: ffmpeg-streamer
+    daemon_reload: yes
+    enabled: yes
+    state: started

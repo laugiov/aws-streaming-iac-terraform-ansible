@@ -1,0 +1,77 @@
+---
+#############################################################################
+# 1. Installation des paquets nécessaires
+#############################################################################
+- name: Installer NGINX + module RTMP + Certbot
+  apt:
+    name:
+      - nginx
+      - libnginx-mod-rtmp
+      - python3-certbot-dns-route53
+    state: present
+    update_cache: yes
+
+#############################################################################
+# 2. Première configuration NGINX : HTTP-only (le temps d’obtenir le cert)
+#############################################################################
+- name: Déployer la configuration NGINX (HTTP-only)
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+    mode: "0644"
+  vars:
+    cert_ready: false            # pas encore de TLS
+  notify: reload nginx
+
+# Assure que le service est lancé même au 1ᵉʳ run
+- name: S’assurer que NGINX est démarré
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+
+#############################################################################
+# 3. Préparer les répertoires HLS / DASH et la page d’index
+#############################################################################
+- name: Créer les répertoires HLS et DASH
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: www-data
+    mode: "0755"
+  loop:
+    - "{{ hls_path }}"
+    - "{{ dash_path }}"
+
+- name: Déployer index.html de test
+  template:
+    src: index.html.j2
+    dest: /usr/share/nginx/html/index.html
+    mode: "0644"
+
+#############################################################################
+# 4. Obtenir ou renouveler le certificat Let’s Encrypt (DNS-01)
+#############################################################################
+- name: Obtenir le certificat TLS via DNS-01
+  command: >
+    certbot certonly --dns-route53
+    --non-interactive --agree-tos
+    --email {{ cert_email }}
+    -d {{ domain_fqdn }}
+  register: certbot
+  retries: 3          # jusqu’à 3 tentatives
+  delay: 30           # 30 s entre chaque tentative
+  until: certbot.rc == 0
+  changed_when: "'Congratulations' in certbot.stdout"
+
+#############################################################################
+# 5. Deuxième configuration NGINX : activation HTTPS
+#############################################################################
+- name: Déployer la configuration NGINX (HTTPS actif)
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+    mode: "0644"
+  vars:
+    cert_ready: true             # TLS prêt
+  notify: reload nginx

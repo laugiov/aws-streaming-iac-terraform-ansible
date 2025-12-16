@@ -1,0 +1,5 @@
+- name: restart ffmpeg-streamer
+  systemd:
+    name: ffmpeg-streamer
+    daemon_reload: yes
+    state: restarted

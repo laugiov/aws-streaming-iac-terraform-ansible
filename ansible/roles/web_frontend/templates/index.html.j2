@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>{{ lab_id }} – Démo Streaming</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3/dist/plyr.css"/>
+
+<style>
+:root{
+  --primary:#ff6b6b; --bg:#0f172a; --card:#1e293bcc; --text:#e2e8f0;
+  --plyr-color-main:var(--primary);
+}
+*{box-sizing:border-box;margin:0}
+body{
+  font-family:'Poppins',sans-serif;
+  background:radial-gradient(circle at 40% 40%,#334155 0%,#0f172a 75%);
+  color:var(--text);display:flex;flex-direction:column;align-items:center;
+  gap:2rem;min-height:100vh;padding:2.5rem 1rem;
+}
+h1{font-size:1.5rem;font-weight:700;text-align:center}
+.card{
+  width:100%;max-width:900px;background:var(--card);border-radius:1rem;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);backdrop-filter:blur(6px);overflow:hidden;
+}
+.plyr,.plyr__video-wrapper{width:100%;height:100%;border-radius:1rem}
+.btn{margin-top:1rem;padding:.5rem 1rem;border:none;border-radius:.5rem;
+     background:var(--primary);color:#fff;font-weight:600;cursor:pointer}
+.btn:hover{opacity:.9}
+#logs{max-width:900px;width:100%;height:110px;background:#000c;border-radius:.5rem;
+      padding:.75rem;overflow:auto;font-family:monospace;font-size:.78rem;
+      color:#38bdf8;box-shadow:0 4px 12px rgba(0,0,0,.4);white-space:pre-wrap}
+footer{font-size:.8rem;opacity:.7;margin-top:auto;text-align:center}
+a{color:var(--primary);text-decoration:none}a:hover{opacity:.85}
+</style>
+</head>
+<body>
+  <h1>Flux HLS / DASH – {{ lab_id }}</h1>
+
+  <div class="card">
+    <video id="player" playsinline controls></video>
+  </div>
+
+  <button id="toggle" class="btn">📜 Logs flux vidéo</button>
+  <pre id="logs" hidden></pre>
+
+<!-- ===================  JS  =================== -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/plyr@3/dist/plyr.polyfilled.js"></script>
+<script>
+/* ---------- constantes ---------- */
+const SRC   = '/hls/{{ stream_key }}.m3u8';
+const video = document.getElementById('player');
+const logs  = document.getElementById('logs');
+const btn   = document.getElementById('toggle');
+const plyr  = new Plyr(video,{ratio:'16:9'});
+
+/* ---------- helpers ---------- */
+const log = msg=>{
+  logs.textContent += `${new Date().toLocaleTimeString()}  ${msg}\n`;
+  logs.scrollTop = logs.scrollHeight;
+};
+btn.onclick = () => logs.hidden = !logs.hidden;
+
+/* ---------- HLS ---------- */
+if (Hls.isSupported()) {
+  const hls = new Hls();
+  hls.loadSource(SRC);
+  hls.attachMedia(video);
+
+  /* events principaux */
+  hls.on(Hls.Events.MANIFEST_PARSED, () => log('✅ MANIFEST_PARSED'));
+  hls.on(Hls.Events.LEVEL_SWITCHED,  (_,d)=>log(`↕️ LEVEL_SWITCHED ➜ ${d.level}`));
+  hls.on(Hls.Events.FRAG_LOADED,     (_,d)=>log(`📦 FRAG_LOADED  sn=${d.frag.sn}`));
+  hls.on(Hls.Events.ERROR,          (_,d)=>log(`❌ ERROR  ${d.type} – ${d.details}`));
+
+  /* stats live toutes les 2 s */
+  setInterval(()=>{
+    if(video.readyState<1) return;
+    const buf = video.buffered.length ?
+          (video.buffered.end(video.buffered.length-1)-video.currentTime).toFixed(1) : 0;
+    const bw  = hls.bandwidthEstimate ? (hls.bandwidthEstimate/1024).toFixed(0)+' kb/s' : 'n/a';
+    const lvl = hls.currentLevel;
+    const q   = video.getVideoPlaybackQuality?.();       // Chrome / Edge
+    const drop= q ? q.droppedVideoFrames : 'n/a';
+    log(`ℹ️ buf=${buf}s  bw=${bw}  level=${lvl}  drop=${drop}`);
+  },2000);
+
+  /* latence live (si flux live) */
+  hls.on(Hls.Events.LEVEL_UPDATED, ()=> {
+    if(hls.latency!==undefined) log(`⏱️ live latency ≈ ${hls.latency.toFixed(1)} s`);
+  });
+
+} else if (video.canPlayType('application/vnd.apple.mpegurl')){
+  video.src = SRC;
+  log('✅ HLS natif Safari/iOS');
+} else {
+  log('⚠️ Navigateur non compatible HLS');
+}
+</script>
+</body>
+</html>

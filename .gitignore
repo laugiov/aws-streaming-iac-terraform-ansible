@@ -1,0 +1,30 @@
+# Terraform
+*.tfstate*
+*.terraform.lock.hcl
+.terraform/
+
+# Fichiers générés avec données sensibles (backend.tf générés par run-all.sh)
+terraform/vpc/backend.tf
+terraform/security/backend.tf
+terraform/ec2/backend.tf
+
+# Fichiers tfvars (contiennent des données spécifiques à l'environnement)
+*.tfvars
+!*.tfvars.example
+
+# Ansible
+*.retry
+
+# Fichiers Ansible générés dynamiquement
+ansible/inventory.ini
+ansible/group_vars/all.yml
+
+# Python venv éventuel
+.venv/
+
+# Certificats/Clés
+*.pem
+*.key
+
+# Fichiers temporaires
+dns-upsert*.json

@@ -1,0 +1,22 @@
+galaxy_info:
+  author: Laurent Giovannoni
+  description: FFmpeg video streamer sending RTMP stream to NGINX server
+  company: ""
+
+  license: MIT
+
+  min_ansible_version: "2.15"
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+
+  galaxy_tags:
+    - ffmpeg
+    - rtmp
+    - streaming
+    - video
+    - aws
+
+dependencies: []

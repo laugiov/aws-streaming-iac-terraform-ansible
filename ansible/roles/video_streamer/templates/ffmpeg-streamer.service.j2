@@ -1,0 +1,14 @@
+[Unit]
+Description=FFmpeg looped RTMP streamer
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/ffmpeg -nostdin -threads 1 \
+  -stream_loop -1 -re -i {{ video_source }} -c copy \
+  -f flv rtmp://{{ rtmp_server }}:1935/live/{{ stream_key }}
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

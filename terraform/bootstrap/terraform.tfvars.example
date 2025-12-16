@@ -1,0 +1,5 @@
+# Example configuration - Copy this file to terraform.tfvars and modify values
+# These values are normally generated automatically by run-all.sh
+
+lab_id = "my-lab-id"      # Unique lab identifier (e.g.: john-doe-lab)
+region = "us-east-1"      # AWS Region

@@ -1,0 +1,10 @@
+---
+domain_fqdn: "{{ rtmp_server }}"
+cert_email:  "admin@example.com"       # EDIT - Email for Let's Encrypt
+cert_ready: false      # switches to true when cert is generated
+
+rtmp_app:  "live"
+rtmp_key:  "{{ lab_id }}"
+
+hls_path:  "/var/www/hls"
+dash_path: "/var/www/dash"

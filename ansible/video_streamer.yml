@@ -1,0 +1,4 @@
+- hosts: streamer
+  become: yes
+  roles:
+    - role: video_streamer

@@ -1,0 +1,8 @@
+# Example configuration - Copy this file to terraform.tfvars and modify values
+# These values are normally generated automatically by run-all.sh
+
+lab_id          = "my-lab-id"                    # Unique lab identifier
+region          = "us-east-1"                    # AWS Region
+vpc_id          = "vpc-xxxxxxxxxxxxxxxxx"        # VPC ID (output from vpc module)
+my_ip_cidr      = "YOUR_PUBLIC_IP/32"            # Your public IP for SSH (e.g.: 1.2.3.4/32)
+public_key_path = "~/.ssh/myKey-my-lab-id.pub"   # Path to SSH public key

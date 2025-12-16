@@ -1,0 +1,5 @@
+lab_id: "${lab_id}"
+stream_key: "${lab_id}"
+rtmp_server: "${web_private_ip}"
+hls_path: "/var/www/hls"
+dash_path: "/var/www/dash"

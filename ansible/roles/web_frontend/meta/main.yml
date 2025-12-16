@@ -1,0 +1,23 @@
+galaxy_info:
+  author: Laurent Giovannoni
+  description: NGINX web server with RTMP module and Let's Encrypt TLS certificate
+  company: ""
+
+  license: MIT
+
+  min_ansible_version: "2.15"
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+
+  galaxy_tags:
+    - nginx
+    - rtmp
+    - streaming
+    - hls
+    - letsencrypt
+    - aws
+
+dependencies: []

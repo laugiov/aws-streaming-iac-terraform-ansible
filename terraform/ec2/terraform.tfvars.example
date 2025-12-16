@@ -1,0 +1,13 @@
+# Example configuration - Copy this file to terraform.tfvars and modify values
+# These values are normally generated automatically by run-all.sh
+
+lab_id            = "my-lab-id"                  # Unique lab identifier
+region            = "us-east-1"                  # AWS Region
+key_name          = "my-lab-id-kp"               # Keypair name (output from security module)
+public_subnet_id  = "subnet-xxxxxxxxxxxxxxxxx"   # Public subnet ID (output from vpc module)
+private_subnet_id = "subnet-xxxxxxxxxxxxxxxxx"   # Private subnet ID (output from vpc module)
+sg_web_id         = "sg-xxxxxxxxxxxxxxxxx"       # Web security group ID (output from security module)
+sg_streamer_id    = "sg-xxxxxxxxxxxxxxxxx"       # Streamer security group ID (output from security module)
+domain_fqdn       = "my-lab-id.example.com"      # Fully qualified domain name
+use_existing_profile  = true                     # Use existing IAM profile
+existing_profile_name = "r53-devops"             # IAM profile name for Route53

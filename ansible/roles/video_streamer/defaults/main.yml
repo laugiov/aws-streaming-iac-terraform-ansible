@@ -1,0 +1,5 @@
+---
+video_source: "/opt/videos/sample.mp4"
+stream_key: "{{ lab_id }}"          # lab_id injecté via group_vars
+ffmpeg_url: "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz"
+ffmpeg_dest: "/usr/local/bin/ffmpeg"
