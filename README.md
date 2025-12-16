@@ -1,5 +1,11 @@
 # AWS Video Streaming Platform - 100% Automated Deployment
 
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+![Terraform](https://img.shields.io/badge/Terraform-%3E%3D1.7-purple.svg)
+![Ansible](https://img.shields.io/badge/Ansible-%3E%3D2.15-red.svg)
+![AWS](https://img.shields.io/badge/AWS-EC2%20%7C%20VPC%20%7C%20Route53-orange.svg)
+![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04%20LTS-E95420.svg)
+
 ## Table of Contents
 1. [Project Objective](#objective)
 2. [Prerequisites](#prerequisites)
